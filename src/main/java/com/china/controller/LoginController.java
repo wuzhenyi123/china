@@ -3,10 +3,12 @@ package com.china.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Api(tags = "登录控制器")
 @RestController
 @RequestMapping("/user")
@@ -15,6 +17,7 @@ public class LoginController {
     // 会话登录接口
     @GetMapping("/doLogin")
     public SaResult doLogin(String name, String pwd) {
+        log.info("用户登录，userName:{}",name);
         // 第一步：比对前端提交的账号名称、密码
         if("zhang".equals(name) && "123456".equals(pwd)) {
             // 第二步：根据账号id，进行登录

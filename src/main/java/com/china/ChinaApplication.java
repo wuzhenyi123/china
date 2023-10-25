@@ -1,5 +1,6 @@
 package com.china;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,11 +10,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 // 优质的 spring/boot/data/security/cloud 框架中文文档尽在 => https://springdoc.cn
 @MapperScan("com.china.mapper")
 @SpringBootApplication
+@Slf4j
 public class ChinaApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ChinaApplication.class, args);
-        System.out.println("启动成功");
+        log.info("启动成功！");
     }
 
 }
