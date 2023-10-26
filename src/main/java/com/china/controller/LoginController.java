@@ -1,12 +1,15 @@
 package com.china.controller;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import com.china.common.ResultRespose;
+import com.china.dto.UserAddDto;
+import com.china.service.TbUserService;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Api(tags = "登录控制器")
@@ -14,17 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class LoginController {
 
+    @Autowired
+    private TbUserService userService;
+
+    @PostMapping("/addUser")
+    public ResultRespose<?> addUser(@RequestBody UserAddDto dto) {
+        log.info("添加用户，dto:{}",dto);
+         userService.addUser(dto);
+        return ResultRespose.success("添加成功");
+    }
+
     // 会话登录接口
     @GetMapping("/doLogin")
-    public SaResult doLogin(String name, String pwd) {
+    public ResultRespose<SaTokenInfo> doLogin(String name, String pwd) {
         log.info("用户登录，userName:{}",name);
-        // 第一步：比对前端提交的账号名称、密码
-        if("zhang".equals(name) && "123456".equals(pwd)) {
-            // 第二步：根据账号id，进行登录
-            StpUtil.login(10001);
-            return SaResult.ok("登录成功");
-        }
-        return SaResult.error("登录失败");
+        SaTokenInfo saTokenInfo = userService.userLogin(name, pwd);
+        return ResultRespose.success(saTokenInfo);
     }
     // 查询登录状态  ---- http://localhost:8081/acc/isLogin
     @GetMapping("isLogin")

@@ -6,13 +6,13 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户表
- * @TableName tb_user
+ * 角色表
+ * @TableName tb_role
  */
 @Data
-public class TbUser implements Serializable {
+public class TbRole implements Serializable {
     /**
-     * 用户ID
+     * 主键
      */
     private String id;
 
@@ -27,24 +27,14 @@ public class TbUser implements Serializable {
     private Date updateTime;
 
     /**
-     * 手机号
+     * 编码
      */
-    private String phoneNum;
+    private String roleCode;
 
     /**
-     * 用户名
+     * 名称
      */
-    private String userName;
+    private String roleName;
 
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 真实姓名
-     */
-    private String realName;
-
-
+    private static final long serialVersionUID = 1L;
 }
