@@ -43,6 +43,13 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
 
     @Override
     public void addUser(UserAddDto dto) {
+        //判断是否注册过
+        LambdaQueryWrapper<TbUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(TbUser::getUserName,dto.getUserName());
+        TbUser one = getOne(wrapper);
+        if (ObjectUtils.isEmpty(one)){
+            throw new ChinaException(ChinaExceptionEnum.ALREADY_REGISTERED);
+        }
         TbUser tbUser = new TbUser();
         tbUser.setId(UUID.randomUUID().toString().replace("-",""));
         BeanUtils.copyProperties(dto,tbUser);

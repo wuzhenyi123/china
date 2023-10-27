@@ -16,4 +16,9 @@
         id,create_time,update_time,
         role_code,role_name
     </sql>
+    <select id="selectRoleListByUserId" resultMap="BaseResultMap">
+        SELECT r.* FROM tb_role r
+             LEFT join tb_user_role tur on r.id = tur.role_id
+        WHERE tur.user_id = #{userId}
+    </select>
 </mapper>

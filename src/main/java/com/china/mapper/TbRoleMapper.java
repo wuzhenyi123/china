@@ -2,6 +2,9 @@ package com.china.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.china.domain.TbRole;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author Administrator
@@ -12,4 +15,5 @@ import com.china.domain.TbRole;
 public interface TbRoleMapper extends BaseMapper<TbRole> {
 
 
+    List<TbRole> selectRoleListByUserId(@Param("userId") String userId);
 }

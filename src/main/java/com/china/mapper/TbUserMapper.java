@@ -2,6 +2,9 @@ package com.china.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.china.domain.TbUser;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author Administrator
@@ -11,5 +14,7 @@ import com.china.domain.TbUser;
 */
 public interface TbUserMapper extends BaseMapper<TbUser> {
 
+    TbUser getUserByUserId(@Param("userId") String userId);
 
+    List<String> getMenuCodeByUserId(@Param("userId") String userId);
 }
