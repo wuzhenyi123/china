@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.china.basic.mapper.TbRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.china.basic.domain.TbRole">
+            <id property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="roleCode" column="role_code" jdbcType="VARCHAR"/>
+            <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,create_time,update_time,
+        role_code,role_name
+    </sql>
+    <select id="selectRoleListByUserId" resultMap="BaseResultMap">
+        SELECT r.* FROM tb_role r
+             LEFT join tb_user_role tur on r.id = tur.role_id
+        WHERE tur.user_id = #{userId}
+    </select>
+</mapper>
