@@ -8,10 +8,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.china.basic.domain.TbUser;
 import com.china.basic.dto.UserAddDto;
 import com.china.basic.mapper.TbUserMapper;
+import com.china.basic.rabbitMq.BasicMqSender;
 import com.china.basic.service.TbUserService;
 import com.china.common.common.ChinaException;
 import com.china.common.common.ChinaExceptionEnum;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -25,12 +27,15 @@ import java.util.UUID;
 @Service
 public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> implements TbUserService {
 
+    @Autowired
+    private BasicMqSender mqSender;
+
     @Override
     public SaTokenInfo userLogin(String name, String pwd) {
         //密码加密对比
         String pwdSecure = SaSecureUtil.md5(pwd);
         LambdaQueryWrapper<TbUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(TbUser::getUserName,name);
+        wrapper.and(w->w.eq(TbUser::getUserName,name).or().eq(TbUser::getPhoneNum,name));
         wrapper.eq(TbUser::getPassword,pwdSecure);
         TbUser user = this.getOne(wrapper);
         if (ObjectUtils.isEmpty(user)){
@@ -47,8 +52,14 @@ public class TbUserServiceImpl extends ServiceImpl<TbUserMapper, TbUser> impleme
         LambdaQueryWrapper<TbUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(TbUser::getUserName,dto.getUserName());
         TbUser one = getOne(wrapper);
-        if (ObjectUtils.isEmpty(one)){
-            throw new ChinaException(ChinaExceptionEnum.ALREADY_REGISTERED);
+        if (!ObjectUtils.isEmpty(one)){
+            throw new ChinaException(ChinaExceptionEnum.USE_NAME_ALREADY_REGISTERED);
+        }
+        LambdaQueryWrapper<TbUser> phoneWapper = new LambdaQueryWrapper<>();
+        phoneWapper.eq(TbUser::getPhoneNum,dto.getPhoneNum());
+        TbUser phone = getOne(wrapper);
+        if (!ObjectUtils.isEmpty(phone)){
+            throw new ChinaException(ChinaExceptionEnum.PHONE_ALREADY_REGISTERED);
         }
         TbUser tbUser = new TbUser();
         tbUser.setId(UUID.randomUUID().toString().replace("-",""));

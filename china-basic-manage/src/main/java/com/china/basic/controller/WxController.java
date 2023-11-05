@@ -3,6 +3,7 @@ package com.china.basic.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.china.common.common.ChinaExceptionEnum;
 import com.china.common.common.ResultRespose;
+import com.china.common.util.CodeLoginUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,7 +35,7 @@ public class WxController {
     private RestTemplate restTemplate;
 
     @Value("${wx.appid}")
-    private String app_id;
+    private  String app_id;
     @Value("${wx.appsecret}")
     private String app_secret;
     @Value("${wx.qrCodeUrl}")
@@ -93,38 +97,38 @@ public class WxController {
      * @return
      * @throws Exception
      */
-//    @RequestMapping("/checkSign")
-//    public String checkSign ( HttpServletRequest request) throws Exception {
-//        log.info("===========>checkSign");
-//        //获取微信请求参数
-//        String signature = request.getParameter ("signature");
-//        String timestamp = request.getParameter ("timestamp");
-//        String nonce = request.getParameter ("nonce");
-//        String echostr = request.getParameter ("echostr");
-//        //参数排序。 token 就要换成自己实际写的 token
-//        String [] params = new String [] {timestamp,nonce,"123456"} ;
-//        Arrays.sort (params) ;
-//        //拼接
-//        String paramstr = params[0] + params[1] + params[2] ;
-//        //加密
-//        //获取 shal 算法封装类
-//        MessageDigest Sha1Dtgest = MessageDigest.getInstance("SHA-1") ;
-//        //进行加密
-//        byte [] digestResult = Sha1Dtgest.digest(paramstr.getBytes ("UTF-8"));
-//        //拿到加密结果
-//        String mysignature = CodeLoginUtil.bytes2HexString(digestResult);
-//        mysignature=mysignature.toLowerCase(Locale.ROOT);
-//        //是否正确
-//        boolean signsuccess = mysignature.equals(signature);
-//        //逻辑处理
-//        if (signsuccess && echostr!=null) {
-//            //peizhi  token
-//            return echostr  ;//不正确就直接返回失败提示．
-//        }else{
-//            JSONObject jsonObject = callback(request);
-//            return jsonObject.toJSONString();
-//        }
-//    }
+    @RequestMapping("/checkSign")
+    public String checkSign ( HttpServletRequest request) throws Exception {
+        log.info("===========>checkSign");
+        //获取微信请求参数
+        String signature = request.getParameter ("signature");
+        String timestamp = request.getParameter ("timestamp");
+        String nonce = request.getParameter ("nonce");
+        String echostr = request.getParameter ("echostr");
+        //参数排序。 token 就要换成自己实际写的 token
+        String [] params = new String [] {timestamp,nonce,"123456"} ;
+        Arrays.sort (params) ;
+        //拼接
+        String paramstr = params[0] + params[1] + params[2] ;
+        //加密
+        //获取 shal 算法封装类
+        MessageDigest Sha1Dtgest = MessageDigest.getInstance("SHA-1") ;
+        //进行加密
+        byte [] digestResult = Sha1Dtgest.digest(paramstr.getBytes ("UTF-8"));
+        //拿到加密结果
+        String mysignature = CodeLoginUtil.bytes2HexString(digestResult);
+        mysignature=mysignature.toLowerCase(Locale.ROOT);
+        //是否正确
+        boolean signsuccess = mysignature.equals(signature);
+        //逻辑处理
+        if (signsuccess && echostr!=null) {
+            //peizhi  token
+            return echostr  ;//不正确就直接返回失败提示．
+        }else{
+            JSONObject jsonObject = (JSONObject) callback(request);
+            return jsonObject.toJSONString();
+        }
+    }
 
 
     /**
@@ -133,10 +137,11 @@ public class WxController {
      * @return
      * @throws Exception
      */
-    public JSONObject callback(HttpServletRequest request) throws Exception{
+    public Object callback(HttpServletRequest request) throws Exception{
         log.info("===========>callback");
         //request中有相应的信息，进行解析
-        WxMpXmlMessage message= WxMpXmlMessage.fromXml(request.getInputStream());//获取消息流,并解析xml
+        WxMpXmlMessage message= WxMpXmlMessage.fromXml(request.getInputStream());
+        log.info("message========>{}",message);//获取消息流,并解析xml
         String messageType=message.getMsgType();								//消息类型
         String messageEvent=message.getEvent();								    //消息事件
         // openid
@@ -152,30 +157,29 @@ public class WxController {
         //if判断，判断查询
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("code","200");
-        if(messageType.equals("event")){
+        if("event".equals(messageType)){
             jsonObject = null;
             //先根据openid从数据库查询  => 从自己数据库中查取用户信息 => jsonObject
-            if(messageEvent.equals("SCAN")){
+            if("SCAN".equals(messageEvent)){
                 //扫描二维码
-                //return "欢迎回来";
+                return "欢迎回来";
             }
-            if(messageEvent.equals("subscribe")){
+            if("subscribe".equals(messageEvent)){
                 //关注
-                //return "谢谢您的关注";
+                return "谢谢您的关注";
             }
             //没有该用户
-            if(jsonObject==null){
-                //从微信上中拉取用户信息
-                String url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=" +getAccessToken() +
-                        "&openid=" + fromUser +
-                        "&lang=zh_CN";
-                ResponseEntity<String> forEntity = restTemplate.getForEntity(url, String.class);
-                String result = forEntity.getBody();
-                jsonObject = JSONObject.parseObject(result);
-                /**
-                 * 用户信息处理....
-                 */
-            }
+            //从微信上中拉取用户信息
+            String url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=" +getAccessToken() +
+                    "&openid=" + fromUser +
+                    "&lang=zh_CN";
+            ResponseEntity<String> forEntity = restTemplate.getForEntity(url, String.class);
+            String result = forEntity.getBody();
+            jsonObject = JSONObject.parseObject(result);
+            log.info("result========>{}",result);
+            /**
+             * 用户信息处理....
+             */
             // 扫码成功，存入缓存
             loginMap.put(eventKey,fromUser);
             return jsonObject;
@@ -192,7 +196,7 @@ public class WxController {
     @GetMapping("getOpenId")
     public ResultRespose getOpenId(String eventKey){
         if(loginMap.get(eventKey) == null){
-            return ResultRespose.error(ChinaExceptionEnum.LOIN_ERROR) ;
+            return ResultRespose.error(ChinaExceptionEnum.QR) ;
         }
         String codeLoginKey = loginMap.get(eventKey);
         loginMap.remove(eventKey);

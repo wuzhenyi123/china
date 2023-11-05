@@ -16,7 +16,9 @@ public enum ChinaExceptionEnum {
     PASSWORD_ERROR(100010,"密码错误！"),
     PARAM_ERROR(100011,"参数错误！"),
     LOIN_ERROR(100012,"登录失败！"),
-    ALREADY_REGISTERED(100013,"用户已经注册过！"),
+    USE_NAME_ALREADY_REGISTERED(100013,"用户名已经注册过！"),
+    PHONE_ALREADY_REGISTERED(100013,"该手机已经注册过！"),
+    QR(100013,"已扫码！"),
     ;
 
 

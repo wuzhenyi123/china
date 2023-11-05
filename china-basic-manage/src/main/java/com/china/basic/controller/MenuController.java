@@ -2,6 +2,7 @@ package com.china.basic.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
+import com.china.basic.aop.annotaions.VipPoints;
 import com.china.basic.service.TbMenuService;
 import com.china.common.common.ResultRespose;
 import io.swagger.annotations.Api;
@@ -24,6 +25,7 @@ public class MenuController {
     private TbMenuService menuService;
 
     @GetMapping("/getMenuCode")
+    @VipPoints(msg = "获取菜单")
     public ResultRespose<List<String>> getMenuCode() {
         log.info("获取菜单code");
         List<String> permissionList = StpUtil.getPermissionList();

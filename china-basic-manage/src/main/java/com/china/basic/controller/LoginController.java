@@ -3,6 +3,7 @@ package com.china.basic.controller;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import com.china.basic.aop.annotaions.VipPoints;
 import com.china.basic.dto.UserAddDto;
 import com.china.basic.service.TbUserService;
 import com.china.common.common.ResultRespose;
@@ -27,11 +28,14 @@ public class LoginController {
         return ResultRespose.success("添加成功");
     }
 
-    // 会话登录接口
+    // 会话登录接口,支持手机号和用户名双认证
     @GetMapping("/doLogin")
-    public ResultRespose<SaTokenInfo> doLogin(String name, String pwd) {
-        log.info("用户登录，userName:{}",name);
-        SaTokenInfo saTokenInfo = userService.userLogin(name, pwd);
+    @VipPoints(msg = "登录")
+    public ResultRespose<SaTokenInfo> doLogin(@RequestParam(value = "userName") String userName,
+                                              @RequestParam(value = "pwd") String pwd) {
+        log.info("用户登录，userName:{}",userName);
+        SaTokenInfo saTokenInfo = userService.userLogin(userName, pwd);
+        log.info("登录成功！");
         return ResultRespose.success(saTokenInfo);
     }
     // 查询登录状态  ---- http://localhost:8081/acc/isLogin
